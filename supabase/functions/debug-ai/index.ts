@@ -16,7 +16,7 @@ const SYSTEM_PROMPTS: Record<string, string> = {
   explain_error:
     "Explain in simple beginner-friendly language why this error occurred. Max 4 sentences. No jargon. Be encouraging.",
   explain_fix:
-    "Give a simple line-by-line explanation of what was changed in the fix and why. Write for a beginner student. Use bullet points.",
+    "Give a simple 2-3 sentence explanation of what was changed in the fix and why. Write in plain English for a beginner. No code blocks, no jargon.",
   simulate_output:
     "Simulate and show what the output of this code would be if run. Show ONLY the output, nothing else. If the code requires user input, use sample values and note them.",
   extract_code:

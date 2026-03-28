@@ -12,7 +12,6 @@ interface ErrorPanelProps {
   whyExplanation: string;
   fixExplanation: string;
   patternWarning: string | null;
-  onAnalyze: () => void;
   onFix: () => void;
 }
 
@@ -48,7 +47,6 @@ const ErrorPanel = ({
   whyExplanation,
   fixExplanation,
   patternWarning,
-  onAnalyze,
   onFix,
 }: ErrorPanelProps) => {
   return (
@@ -64,14 +62,6 @@ const ErrorPanel = ({
                 <span className="text-xs text-muted-foreground">({errors.length})</span>
               )}
             </h2>
-            <button
-              onClick={onAnalyze}
-              className="neon-button text-xs px-4 py-1.5 flex items-center gap-1.5"
-              disabled={!code.trim() || isAnalyzing}
-            >
-              {isAnalyzing ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
-              {isAnalyzing ? "Analyzing..." : "Analyze"}
-            </button>
           </div>
 
           {/* Pattern warning */}
@@ -129,7 +119,11 @@ const ErrorPanel = ({
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              {code.trim() ? "Click Analyze to detect errors." : "Paste code to get started."}
+              {code.trim()
+                ? isAnalyzing
+                  ? ""
+                  : "No errors found. Your code looks good! ✅"
+                : "Paste code to get started."}
             </p>
           )}
         </div>

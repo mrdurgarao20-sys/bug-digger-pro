@@ -46,7 +46,10 @@ const Debug = () => {
       ai.set({ language: "Unknown" });
       return;
     }
-    const timer = setTimeout(() => ai.detectLanguage(code), 800);
+    const timer = setTimeout(() => {
+      ai.detectLanguage(code);
+      ai.analyzeErrors(code);
+    }, 800);
     return () => clearTimeout(timer);
   }, [code]);
 
@@ -63,10 +66,6 @@ const Debug = () => {
     setShowDiffModal(false);
     toast({ title: "Ready!", description: "Paste new code to debug." });
   };
-
-  const handleAnalyze = useCallback(() => {
-    ai.analyzeErrors(code);
-  }, [code, ai]);
 
   const handleFix = useCallback(async () => {
     await ai.fixCode(code, ai.errors);
@@ -197,7 +196,6 @@ const Debug = () => {
             whyExplanation={ai.whyExplanation}
             fixExplanation={ai.fixExplanation}
             patternWarning={ai.patternWarning}
-            onAnalyze={handleAnalyze}
             onFix={handleFix}
           />
         </div>
