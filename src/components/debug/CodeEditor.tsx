@@ -1,7 +1,9 @@
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import { Upload, Camera, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import EmptyState from "./EmptyState";
 
 const languageColors: Record<string, string> = {
   Python: "bg-blue-500/20 text-blue-400 border-blue-500/30",
@@ -42,10 +44,10 @@ const CodeEditor = ({
 }: CodeEditorProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const screenshotInputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const lineNumbers = Math.max((diffView ? diffView.original : code).split("\n").length, 20);
   const colorClass = languageColors[language] || languageColors.Unknown;
+  const hasCode = code.trim().length > 0;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -59,7 +61,6 @@ const CodeEditor = ({
     e.target.value = "";
   };
 
-  // Render diff view
   const renderDiff = () => {
     if (!diffView) return null;
     const origLines = diffView.original.split("\n");
@@ -102,46 +103,58 @@ const CodeEditor = ({
   };
 
   return (
-    <div className="w-[60%] border-r border-border/50 flex flex-col">
-      <div className="flex items-center justify-between p-4 border-b border-border/50">
+    <div className="flex-1 border-r border-border/50 flex flex-col min-w-0">
+      {/* Header */}
+      <div className="flex items-center justify-between p-3 md:p-4 border-b border-border/50">
         <div className="flex items-center gap-3">
-          <h2 className="text-sm font-semibold text-foreground">Code Editor</h2>
-          <span className={`text-xs px-2.5 py-0.5 rounded-full border transition-all ${colorClass}`}>
-            {isDetecting ? <Loader2 className="h-3 w-3 animate-spin inline" /> : language}
-          </span>
+          <h2 className="text-sm font-semibold text-foreground hidden sm:block">Code Editor</h2>
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={language}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className={`text-xs px-2.5 py-0.5 rounded-full border transition-all ${colorClass}`}
+            >
+              {isDetecting ? <Loader2 className="h-3 w-3 animate-spin inline" /> : language}
+            </motion.span>
+          </AnimatePresence>
           {diffView && (
             <span className="text-xs px-2.5 py-0.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-yellow-400">
               Diff View
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 md:gap-2">
           <input ref={fileInputRef} type="file" className="hidden" accept=".py,.java,.c,.cpp,.js,.ts,.go,.rs,.rb,.php,.txt" onChange={handleFileChange} />
           <input ref={screenshotInputRef} type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
           <Button variant="ghost" size="sm" className="text-muted-foreground gap-1.5 text-xs" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-3.5 w-3.5" /> Upload File
+            <Upload className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Upload</span>
           </Button>
           <Button variant="ghost" size="sm" className="text-muted-foreground gap-1.5 text-xs" onClick={() => screenshotInputRef.current?.click()}>
-            <Camera className="h-3.5 w-3.5" /> Screenshot
+            <Camera className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Screenshot</span>
           </Button>
         </div>
       </div>
 
+      {/* Editor body */}
       <div className="flex-1 flex overflow-hidden">
         {diffView ? (
           renderDiff()
+        ) : !hasCode ? (
+          <EmptyState />
         ) : (
           <>
-            <div className="w-12 bg-muted/30 border-r border-border/50 py-4 px-2 text-right font-mono text-xs text-muted-foreground select-none overflow-hidden">
+            <div className="w-10 md:w-12 bg-muted/30 border-r border-border/50 py-4 px-1 md:px-2 text-right font-mono text-xs text-muted-foreground select-none overflow-hidden">
               {Array.from({ length: lineNumbers }, (_, i) => (
                 <div key={i} className="leading-6">{i + 1}</div>
               ))}
             </div>
             <Textarea
-              ref={textareaRef}
               value={code}
               onChange={(e) => onCodeChange(e.target.value)}
-              placeholder="Paste your code here or upload a file..."
+              placeholder="Paste your code here..."
               className="flex-1 resize-none border-0 rounded-none bg-transparent font-mono text-sm leading-6 py-4 px-4 focus-visible:ring-0 placeholder:text-muted-foreground/50"
               spellCheck={false}
             />
@@ -149,19 +162,21 @@ const CodeEditor = ({
         )}
       </div>
 
-      {/* Output section */}
-      <div className="border-t border-border/50 p-4 h-36 overflow-auto">
+      {/* Output */}
+      <div className="border-t border-border/50 p-3 md:p-4 h-28 md:h-36 overflow-auto">
         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Output</h3>
         <div className="font-mono text-xs text-foreground whitespace-pre-wrap">
           {isSimulating ? (
-            <span className="text-muted-foreground flex items-center gap-2">
-              <Loader2 className="h-3 w-3 animate-spin" /> Simulating output...
-            </span>
+            <div className="space-y-2">
+              <div className="h-3 bg-muted/50 rounded animate-pulse w-3/4" />
+              <div className="h-3 bg-muted/50 rounded animate-pulse w-1/2" />
+              <div className="h-3 bg-muted/50 rounded animate-pulse w-2/3" />
+            </div>
           ) : simulatedOutput ? (
             simulatedOutput
           ) : (
             <span className="text-muted-foreground">
-              {code.trim() ? "Output will appear after fixing." : "No code to run."}
+              {hasCode ? "Output will appear after fixing." : "No code to run."}
             </span>
           )}
         </div>
