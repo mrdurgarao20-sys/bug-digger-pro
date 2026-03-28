@@ -46,7 +46,10 @@ const Debug = () => {
       ai.set({ language: "Unknown" });
       return;
     }
-    const timer = setTimeout(() => ai.detectLanguage(code), 800);
+    const timer = setTimeout(() => {
+      ai.detectLanguage(code);
+      ai.analyzeErrors(code);
+    }, 800);
     return () => clearTimeout(timer);
   }, [code]);
 
