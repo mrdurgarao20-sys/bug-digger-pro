@@ -67,10 +67,6 @@ const Debug = () => {
     toast({ title: "Ready!", description: "Paste new code to debug." });
   };
 
-  const handleAnalyze = useCallback(() => {
-    ai.analyzeErrors(code);
-  }, [code, ai]);
-
   const handleFix = useCallback(async () => {
     await ai.fixCode(code, ai.errors);
     if (ai.fixedCode) {
