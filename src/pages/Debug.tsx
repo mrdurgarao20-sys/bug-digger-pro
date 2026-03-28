@@ -200,7 +200,6 @@ const Debug = () => {
             whyExplanation={ai.whyExplanation}
             fixExplanation={ai.fixExplanation}
             patternWarning={ai.patternWarning}
-            onAnalyze={handleAnalyze}
             onFix={handleFix}
           />
         </div>
