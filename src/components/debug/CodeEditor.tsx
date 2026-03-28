@@ -139,13 +139,16 @@ const CodeEditor = ({
       </div>
 
       {/* Editor body */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
         {diffView ? (
           renderDiff()
-        ) : !hasCode ? (
-          <EmptyState />
         ) : (
           <>
+            {!hasCode && (
+              <div className="absolute inset-0 z-10 pointer-events-none">
+                <EmptyState />
+              </div>
+            )}
             <div className="w-10 md:w-12 bg-muted/30 border-r border-border/50 py-4 px-1 md:px-2 text-right font-mono text-xs text-muted-foreground select-none overflow-hidden">
               {Array.from({ length: lineNumbers }, (_, i) => (
                 <div key={i} className="leading-6">{i + 1}</div>
@@ -155,7 +158,7 @@ const CodeEditor = ({
               value={code}
               onChange={(e) => onCodeChange(e.target.value)}
               placeholder="Paste your code here..."
-              className="flex-1 resize-none border-0 rounded-none bg-transparent font-mono text-sm leading-6 py-4 px-4 focus-visible:ring-0 placeholder:text-muted-foreground/50"
+              className="flex-1 resize-none border-0 rounded-none bg-transparent font-mono text-sm leading-6 py-4 px-4 focus-visible:ring-0 placeholder:text-muted-foreground/50 relative z-20"
               spellCheck={false}
             />
           </>
